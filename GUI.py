@@ -40,7 +40,7 @@ class MainUi(QtWidgets.QMainWindow):
         self.width = self.screenRect.width()
 
         self.setWindowTitle('TASHAN')
-        self.setWindowIcon(QIcon('./images-new/LOGO.png'))
+        self.setWindowIcon(QIcon('./images-new/tashan.png'))
 
         # 主窗口及布局
         self.setFixedSize(self.width, self.height)
@@ -310,19 +310,18 @@ class MainUi(QtWidgets.QMainWindow):
         sleep(1)
 
         print('exit success!')
-        self.display_win.win.close()
         self.display_win.close()
         self.close()
 
-    def closeEvent(self, event):    # 事件处理, 重写点X关闭的方法
-        reply = QMessageBox.question(self, 'Message!',
-                                     "Are you sure to quit?", QMessageBox.Yes |
-                                     QMessageBox.No, QMessageBox.No)
+    # def closeEvent(self, event):    # 事件处理, 重写点X关闭的方法
+    #     reply = QMessageBox.question(self, 'Message!',
+    #                                  "Are you sure to quit?", QMessageBox.Yes |
+    #                                  QMessageBox.No, QMessageBox.No)
 
-        if reply == QMessageBox.Yes:
-            event.accept()
-        else:
-            event.ignore()
+    #     if reply == QMessageBox.Yes:
+    #         event.accept()
+    #     else:
+    #         event.ignore()
 
     def keyPressEvent(self, event):
         # 这里event.key（）显示的是按键的编码! 举例: Qt.Key_A注意虽然字母大写，但按键事件对大小写不敏感
@@ -343,7 +342,7 @@ class MainUi(QtWidgets.QMainWindow):
         if self.display_win.isVisible():
             self.display_win.hide()
         else:
-            self.display_win.win.show()
+            self.display_win.show()
 
 def main():
     app = QtWidgets.QApplication(sys.argv)

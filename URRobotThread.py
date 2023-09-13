@@ -26,9 +26,15 @@ class URRobotThread(Thread):
             ["wait_start_btn", "move_z", "move_y", "move_x", "send_message", "wait_message","move_z", "send_message",
              "wait_message", "task_end"],
 
+            # 任务1，将物品移动到定点的位置
+            # ["move_x", "move_y","send_message", "wait_message", "send_message", "wait_message", "move_z", "send_message",
+            #  "move_y", "move_x", "move_y", "wait_message", "send_message", "wait_message", "move_z", "send_message", 
+            #  "wait_message", "move_y", "move_x", "task_end"],
+
+            # 任务1，将物品抓起再放下
             ["move_x", "move_y","send_message", "wait_message", "send_message", "wait_message", "move_z", "send_message",
-             "move_y", "move_x", "move_y", "wait_message", "send_message", "wait_message", "move_z", "send_message", 
-             "wait_message", "move_y", "move_x", "task_end"],
+             "wait_message", "send_message", "wait_message", "move_z", "send_message", "wait_message", "move_y", "move_x", 
+             "task_end"],
 
             ["move_x", "move_y", "send_message", "wait_message", "move_x", "move_y", "send_message", "wait_message",
              "send_message", "wait_message", "task_end"],
@@ -38,8 +44,14 @@ class URRobotThread(Thread):
         message_list = [
             ["", "", "", "", "StartDecline", "downReply_StartDecline", "", "CompleteDecline", "downSend_TaskComplete", ""],
 
-            ["", "", "StartPrepare", "downSend_PrepareComplete", "StartGrab", "downSend_GrabComplete", "", "LiftComplete", "", 
-             "", "", "downSend_RequestDecline", "StartDecline", "downReply_StartDecline", "", "CompleteDecline", "downSend_TaskComplete",
+            # 任务1，将物品移动到定点的位置
+            # ["", "", "StartPrepare", "downSend_PrepareComplete", "StartGrab", "downSend_GrabComplete", "", "LiftComplete", "", 
+            #  "", "", "downSend_RequestDecline", "StartDecline", "downReply_StartDecline", "", "CompleteDecline", "downSend_TaskComplete",
+            #  "", "", ""],
+
+            # 任务1，将物品抓起再放下
+            ["", "", "StartPrepare", "downSend_PrepareComplete", "StartGrab", "downSend_GrabComplete", "", "LiftComplete", 
+             "downSend_RequestDecline", "StartDecline", "downReply_StartDecline", "", "CompleteDecline", "downSend_TaskComplete",
              "", "", ""],
 
             ["", "", "HandInteraction", "downSend_RequestDecline", "", "", "StartDecline", "downReply_StartDecline",
@@ -48,18 +60,24 @@ class URRobotThread(Thread):
             ["", "StartDecline", "downReply_StartDecline", "", "CompleteDecline", "downSend_TaskComplete", "", ""]]
 
         position_list = [
-            [[0, 0, 0, 0, 0, 0], [0, 0, 0.275, 0, 0, 0], [0, -0.268, 0, 0, 0, 0], [-0.107, 0, 0, 1.208, 1.201, -1.233],
-             [0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0], [0, 0, 0.117, 0, 0, 0], [0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0]],
+            [[0, 0, 0, 0, 0, 0], [0, 0, 0.275, 0, 0, 0], [0, -0.268, 0, 0, 0, 0], [-0.107, 0, 0, 0.046, 2.200, -2.253],
+             [0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0], [0, 0, 0.106, 0, 0, 0], [0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0]],
 
+            # 任务1，将物品移动到定点的位置
+            # [[0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0],
+            #  [0, 0, 0.275, 0, 0, 0], [0, 0, 0, 0, 0, 0], [0, -0.268, 0, 0, 0, 0], [-0.386, 0, 0, 0, 0, 0], [0, -0.496, 0, 0, 0, 0],
+            #  [0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0], [0, 0, 0.106, 0, 0, 0], [0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0],
+            #  [0, -0.268, 0, 0, 0, 0], [-0.107, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0]],
+
+            # 任务1，将物品抓起再放下
             [[0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0],
-             [0, 0, 0.275, 0, 0, 0], [0, 0, 0, 0, 0, 0], [0, -0.268, 0, 0, 0, 0], [-0.386, 0, 0, 0, 0, 0], [0, -0.496, 0, 0, 0, 0],
-             [0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0], [0, 0, 0.117, 0, 0, 0], [0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0],
-             [0, -0.268, 0, 0, 0, 0], [-0.107, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0]],
+             [0, 0, 0.275, 0, 0, 0], [0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0], [0, 0, 0.106, 0, 0, 0], 
+             [0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0], [0, -0.268, 0, 0, 0, 0], [-0.107, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0]],
 
             [[-0.156, 0, 0, 0, 0, 0], [0, -0.566, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0], [-0.156, 0, 0, 0, 0, 0], [0, -0.268, 0, 0, 0, 0],
              [0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0]],
 
-            [[0, -0.268, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0], [0, 0, 0.117, 0, 0, 0], [0, 0, 0, 0, 0, 0],
+            [[0, -0.268, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0], [0, 0, 0.106, 0, 0, 0], [0, 0, 0, 0, 0, 0],
              [-0.107, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0]]]
         
         hand_x_left_limit = -0.236
@@ -70,8 +88,12 @@ class URRobotThread(Thread):
         y_end_limit = -0.696          # -0.690
         y_front_limit = -0.366        # -0.268
     
-        y1 = -0.469
-        y2 = -0.629
+        xmin = -0.370
+        xmax = 0.436
+        ymin = -0.720
+        ymax = -0.260
+        zmin = 0.100
+        zmax = 0.560
         task_num_break = 0
 
         a = 0.05
@@ -84,7 +106,7 @@ class URRobotThread(Thread):
         lastmoveSource = 0
         moveSource = 0
         enableMove = 0
-        pointcloud2 = np.array([-0.107, -0.568, 0.117])
+        pointcloud2 = np.array([-0.107, -0.568, 0.106])
         flag_pointcloud = False
         
         GUI.stateMachine_Lock.acquire()
@@ -145,8 +167,13 @@ class URRobotThread(Thread):
                     v = v1                              # fast down
                     zMoveDirection = -1
 
-                self.rob.movel(target_point, acc=a, vel=v, wait=False)
-                status = "wait_move_z"
+                if not np.isnan(target_point).any() and zmin < target_point[2] < zmax:
+                    self.rob.movel(target_point, acc=a, vel=v, wait=False)
+                    status = "wait_move_z"
+                else:
+                    Utility.formatPrinting("Z coordinate overstep the boundary!")
+                    self.rob.stopl(acc = a)
+                    status = "task_end"
                 
             elif status == "wait_move_z":
                 current_point = self.rob.getl()
@@ -162,7 +189,7 @@ class URRobotThread(Thread):
             elif status == "change_pose":
                 current_point = self.rob.getl()
                 target_point = current_point
-                target_point[2] = 0.117
+                target_point[2] = 0.106
                 target_point[3] = position_list[task_num][task_sub_step][3]
                 target_point[4] = position_list[task_num][task_sub_step][4]
                 target_point[5] = position_list[task_num][task_sub_step][5]
@@ -191,10 +218,12 @@ class URRobotThread(Thread):
                 if task_num == 1 and task_sub_step == 0:
                     target_point[0] = pointcloud2[0]
                     
-                if not np.isnan(target_point).any():
+                if not np.isnan(target_point).any() and xmin < target_point[0] < xmax:
                     self.rob.movel(target_point, acc=a, vel=v2, wait=False)
                     status = "wait_move_x"
                 else:
+                    Utility.formatPrinting("X coordinate overstep the boundary!")
+                    self.rob.stopl(acc = a)
                     status = "task_end"
                 
             elif status == "wait_move_x":
@@ -205,7 +234,7 @@ class URRobotThread(Thread):
                     status = task_list[task_num][task_sub_step]  
                 # 判断没有抓取任务，保持人手互动任务    
                 if task_num == 2 and flag_pointcloud == False and task_sub_step == 5:
-                    task_sub_step = 2
+                    # task_sub_step = 2
                     status = task_list[task_num][task_sub_step]   
         
             elif status == "move_y":
@@ -220,10 +249,12 @@ class URRobotThread(Thread):
                 if task_num == 1 and task_sub_step == 1:
                     target_point[1] = pointcloud2[1]
                     
-                if not np.isnan(target_point).any():
+                if not np.isnan(target_point).any() and ymin < target_point[1] < ymax:
                     self.rob.movel(target_point, acc=a, vel=v2, wait=False)
                     status = "wait_move_y"
                 else:
+                    Utility.formatPrinting("Y coordinate overstep the boundary!")
+                    self.rob.stopl(acc = a)
                     status = "task_end"
 
             elif status == "wait_move_y":
@@ -342,9 +373,20 @@ class URRobotThread(Thread):
                     Utility.formatPrinting("wait_message << downReply_MutualCapacitanceClean")
                 
                 elif this_message == "downSend_MoveLeft":
+                    if (task_num == 1 and task_sub_step == 3) or (task_num == 1 and task_sub_step == 5):
+                        current_point = self.rob.getl()
+                        target_point = current_point
+                        target_point[0] -= 0.002
+                        self.rob.movel(target_point, acc=a, vel=v0, wait=False)
+                        Utility.formatPrinting("wait_message << downSend_MoveLeft :: target " + stateMachine + " >> " + " ".join(map(str,target_point)))
+                        current_point = self.rob.getl()
+                        if current_point[0] - target_point[0] < 0.0001:
+                            GUI.send_lock.acquire()
+                            GUI.sendMessageQueue.put("MoveComplete")
+                            GUI.send_lock.release()
                     if enableMove == 1:
                         if direction != -1:
-                            direction = -1
+                            direction = -1 
                             current_point = self.rob.getl()
                             target_point = current_point
                             target_point[0] = hand_x_left_limit
@@ -352,6 +394,17 @@ class URRobotThread(Thread):
                             Utility.formatPrinting("wait_message << downSend_MoveLeft :: target " + stateMachine + " >> " + " ".join(map(str,target_point)))
 
                 elif this_message == "downSend_MoveRight":
+                    if (task_num == 1 and task_sub_step == 3) or (task_num == 1 and task_sub_step == 5):
+                        current_point = self.rob.getl()
+                        target_point = current_point
+                        target_point[0] += 0.002
+                        self.rob.movel(target_point, acc=a, vel=v0, wait=False)
+                        Utility.formatPrinting("wait_message << downSend_MoveRight :: target " + stateMachine + " >> " + " ".join(map(str,target_point)))
+                        current_point = self.rob.getl()
+                        if current_point[0] - target_point[0] < 0.0001:
+                            GUI.send_lock.acquire()
+                            GUI.sendMessageQueue.put("MoveComplete")
+                            GUI.send_lock.release()
                     if enableMove == 1:
                         if direction != 1:
                             direction = 1
@@ -360,8 +413,15 @@ class URRobotThread(Thread):
                             target_point[0] = hand_x_right_limit  # y change var
                             self.rob.movel(target_point, acc=a, vel=v0, wait=False)
                             Utility.formatPrinting("wait_message << downSend_MoveRight :: target " + stateMachine + " >> " + " ".join(map(str,target_point)))
-
+                
                 elif this_message == "downSend_HandStop":
+                    if (task_num == 1 and task_sub_step == 3) or (task_num == 1 and task_sub_step == 5):
+                        self.rob.stopl(acc=a)  
+                        current_point = self.rob.getl()
+                        Utility.formatPrinting("wait_message << downSend_HandStop :: current " + stateMachine + " >> " + " ".join(map(str,target_point)))
+                        GUI.send_lock.acquire()
+                        GUI.sendMessageQueue.put("MoveComplete")
+                        GUI.send_lock.release()
                     if enableMove == 1:
                         if direction != 0:
                             self.rob.stopl(acc=a)
@@ -370,6 +430,13 @@ class URRobotThread(Thread):
                             Utility.formatPrinting("wait_message << downSend_HandStop :: current " + stateMachine + " >> " + " ".join(map(str,target_point)))
 
                 elif this_message == "downSend_NoHandStop":
+                    if (task_num == 1 and task_sub_step == 3) or (task_num == 1 and task_sub_step == 5):
+                        self.rob.stopl(acc=a)  
+                        current_point = self.rob.getl()
+                        Utility.formatPrinting("wait_message << downSend_HandStop :: current " + stateMachine + " >> " + " ".join(map(str,target_point)))
+                        GUI.send_lock.acquire()
+                        GUI.sendMessageQueue.put("MoveComplete")
+                        GUI.send_lock.release() 
                     if enableMove == 1:
                         if direction != 0:
                             self.rob.stopl(acc=a)
@@ -386,7 +453,7 @@ class URRobotThread(Thread):
                 
                 if task_num == 0:   # task_end状态，第一次执行需要等待开始键。需要跳过第一个状态
                     task_sub_step = 1
-                # task_num_break = 0
+                # task_num_break = 0   # 不回原点
                 status = task_list[task_num][task_sub_step]
                 current_point = self.rob.getl()
                 Utility.formatPrinting("task_end " + status + " >> " + " ".join(map(str,target_point)))

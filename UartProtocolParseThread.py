@@ -14,9 +14,9 @@ gripperDistance = 10
 
 class UartProtocolParseThread(Thread):
     def __init__(self):
+        Thread.__init__(self)
         self.packPos = 0
         self.packBuf = [0]*30
-        Thread.__init__(self)
 
     def getCheckSum(self, buf, len):
         sum = 0

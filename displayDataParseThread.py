@@ -4,15 +4,15 @@ from threading import Thread, Lock
 from time import sleep
 from queue import Queue
 
-mutualCapacitanceQueue = Queue(maxsize=1000)
-threeDimensionalForcesInside1 = Queue(maxsize=1000)
-threeDimensionalForcesInside2 = Queue(maxsize=1000)
-threeDimensionalForcesInside3 = Queue(maxsize=1000)
-threeDimensionalForcesInside4 = Queue(maxsize=1000)
-threeDimensionalForcesOutside1 = Queue(maxsize=1000)
-threeDimensionalForcesOutside2 = Queue(maxsize=1000)
-threeDimensionalForcesOutside3 = Queue(maxsize=1000)
-threeDimensionalForcesOutside4 = Queue(maxsize=1000)
+mutualCapacitanceQueue = Queue(maxsize=10000)
+threeDimensionalForcesInside1 = Queue(maxsize=10000)
+threeDimensionalForcesInside2 = Queue(maxsize=10000)
+threeDimensionalForcesInside3 = Queue(maxsize=10000)
+threeDimensionalForcesInside4 = Queue(maxsize=10000)
+threeDimensionalForcesOutside1 = Queue(maxsize=10000)
+threeDimensionalForcesOutside2 = Queue(maxsize=10000)
+threeDimensionalForcesOutside3 = Queue(maxsize=10000)
+threeDimensionalForcesOutside4 = Queue(maxsize=10000)
 displayData_lock = Lock()
 
 
@@ -42,9 +42,9 @@ class DisplayDataParseThread(Thread):
             readLen = 0
             if n >= 4:
                 for i in range(4):
-                    UartReceiveThread.displayDataBuffer_lock.acquire()
+                    UartReceiveThread.ReceiveBuffer_lock.acquire()
                     data = UartReceiveThread.displayDataReceiveBuffer.get()
-                    UartReceiveThread.displayDataBuffer_lock.release()
+                    UartReceiveThread.ReceiveBuffer_lock.release()
                     if data == 0x55 and self.packPos == 0:
                         len = 0
                         self.packBuf[self.packPos] = data
@@ -70,9 +70,9 @@ class DisplayDataParseThread(Thread):
 
                 if n >= readLen:
                     for i in range(readLen):
-                        UartReceiveThread.displayDataBuffer_lock.acquire()
+                        UartReceiveThread.ReceiveBuffer_lock.acquire()
                         data = UartReceiveThread.displayDataReceiveBuffer.get()
-                        UartReceiveThread.displayDataBuffer_lock.release()
+                        UartReceiveThread.ReceiveBuffer_lock.release()
                         if len > 0 and self.packPos < len:
                             self.packBuf[self.packPos] = data
                             self.packPos += 1
@@ -82,7 +82,7 @@ class DisplayDataParseThread(Thread):
                                 
                                 if checksum == (self.packBuf[len - 1] * 256) + self.packBuf[len - 2]:
                                     displayData_lock.acquire()
-                                    mutualCapacitanceQueue.put(self.packBuf[4] + self.packBuf[5])
+                                    mutualCapacitanceQueue.put(self.packBuf[4] + self.packBuf[5] * 256)
                                     threeDimensionalForcesInside1.put(self.packBuf[6] + (self.packBuf[7] * 256))
                                     threeDimensionalForcesInside2.put(self.packBuf[8] + (self.packBuf[9] * 256))
                                     threeDimensionalForcesInside3.put(self.packBuf[10] + (self.packBuf[11] * 256))
@@ -94,7 +94,7 @@ class DisplayDataParseThread(Thread):
                                     displayData_lock.release()
 
                                     strbuf = "--- receiveMessageQueue --- " + str(mutualCapacitanceQueue.qsize())
-                                    Utility.formatPrinting(strbuf)
+                                    # Utility.formatPrinting(strbuf)
                                 else:
                                     print("displayData checksum error")
                         else:
