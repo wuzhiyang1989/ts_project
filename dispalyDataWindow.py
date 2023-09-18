@@ -183,16 +183,15 @@ class DisplayDataWindow(QMainWindow):
         self.data_fi4 = np.zeros(self.dataMaxLength, dtype=float)
         self.curve_num = 9
 
-        # self.canvasX = self.plotM.plot(self.dataX, pen=pg.mkPen(color='r', width=1))
-        self.curve = self.pw.plot(self.data_mc, pen=pg.mkPen(color=(255,0,0), width=10))        # 绘制一个图形
-        self.curve1 = self.pw.plot(self.data_fi1, pen=(0,255,0))
-        self.curve2 = self.pw.plot(self.data_fi2, pen=(0,0,255))
+        self.curve = self.pw.plot(self.data_mc, pen=pg.mkPen(color=(255, 0, 0), width=3, style=QtCore.Qt.SolidLine))        # 绘制一个图形
+        self.curve1 = self.pw.plot(self.data_fi1, pen=pg.mkPen(color=(0, 255, 0), width=3, style=QtCore.Qt.SolidLine))
+        self.curve2 = self.pw.plot(self.data_fi2, pen=pg.mkPen(color=(0, 0, 255), width=3, style=QtCore.Qt.SolidLine))
         self.curve3 = self.pw.plot(self.data_fi3)
-        self.curve4 = self.pw.plot(self.data_fi4)
-        self.curve5 = self.pw.plot(self.data_fo1)
-        self.curve6 = self.pw.plot(self.data_fo2)
-        self.curve7 = self.pw.plot(self.data_fo3)
-        self.curve8 = self.pw.plot(self.data_fo4)
+        self.curve4 = self.pw.plot(self.data_fi4, pen=pg.mkPen(color=(135, 206, 250), width=3, style=QtCore.Qt.SolidLine))
+        self.curve5 = self.pw.plot(self.data_fo1, pen=pg.mkPen(color=(255, 215, 0), width=3, style=QtCore.Qt.SolidLine))
+        self.curve6 = self.pw.plot(self.data_fo2, pen=pg.mkPen(color=(154, 50, 205), width=3, style=QtCore.Qt.SolidLine))
+        self.curve7 = self.pw.plot(self.data_fo3, pen=pg.mkPen(color=(176, 48, 96), width=3, style=QtCore.Qt.SolidLine))
+        self.curve8 = self.pw.plot(self.data_fo4, pen=pg.mkPen(color=(139, 105, 20), width=3, style=QtCore.Qt.SolidLine))
         
         self.retranslateUi()
         self.timer = pg.QtCore.QTimer()
@@ -240,7 +239,7 @@ class DisplayDataWindow(QMainWindow):
             
         # 更新波形数据
         if self.checkBox.isChecked():
-            self.curve.setData(self.data_mc, pen="r", width=3)
+            self.curve.setData(self.data_mc, pen="r")
             self.curve.setPos(self.dataIndex, 0)
         if self.checkBox.isChecked() == False and self.checkBox.checkState() == 0:
             self.curve.clear()
@@ -255,32 +254,32 @@ class DisplayDataWindow(QMainWindow):
         if self.checkBox_2.isChecked() == False and self.checkBox_2.checkState() == 0:
             self.curve2.clear()
         if self.checkBox_3.isChecked():
-            self.curve3.setData(self.data_fi3, pen=(186,85,211))
+            self.curve3.setData(self.data_fi3, pen=pg.mkPen(color=(186, 85, 211), width=3, style=QtCore.Qt.SolidLine))
             self.curve3.setPos(self.dataIndex, 0)
         if self.checkBox_3.isChecked() == False and self.checkBox_3.checkState() == 0:
             self.curve3.clear()
         if self.checkBox_4.isChecked():
-            self.curve4.setData(self.data_fi4, pen=(135,206,250))
+            self.curve4.setData(self.data_fi4)
             self.curve4.setPos(self.dataIndex, 0)
         if self.checkBox_4.isChecked() == False and self.checkBox_4.checkState() == 0:
             self.curve4.clear()
         if self.checkBox_5.isChecked():
-            self.curve5.setData(self.data_fo1, pen=(255,215,0))
+            self.curve5.setData(self.data_fo1)
             self.curve5.setPos(self.dataIndex, 0)
         if self.checkBox_5.isChecked() == False and self.checkBox_5.checkState() == 0:
             self.curve5.clear()
         if self.checkBox_6.isChecked():
-            self.curve6.setData(self.data_fo2, pen=(154,50,205))
+            self.curve6.setData(self.data_fo2)
             self.curve6.setPos(self.dataIndex, 0)
         if self.checkBox_6.isChecked() == False and self.checkBox_6.checkState() == 0:
             self.curve6.clear()
         if self.checkBox_7.isChecked():
-            self.curve7.setData(self.data_fo3, pen=(176,48,96))
+            self.curve7.setData(self.data_fo3)
             self.curve7.setPos(self.dataIndex, 0)
         if self.checkBox_7.isChecked() == False and self.checkBox_7.checkState() == 0:
             self.curve7.clear()
         if self.checkBox_8.isChecked():
-            self.curve8.setData(self.data_fo4, pen=(139,105,20))
+            self.curve8.setData(self.data_fo4)
             self.curve8.setPos(self.dataIndex, 0)
         if self.checkBox_8.isChecked() == False and self.checkBox_8.checkState() == 0:
             self.curve8.clear()
@@ -350,32 +349,32 @@ class DisplayDataWindow(QMainWindow):
         if self.checkBox_2.isChecked() == False and self.checkBox_2.checkState() == 0:
             self.curve2.clear()
         if self.checkBox_3.isChecked():
-            self.curve3.setData(self.data_fi3, pen=(186,85,211))
+            self.curve3.setData(self.data_fi3, pen=pg.mkPen(color=(186, 85, 211), width=3, style=QtCore.Qt.SolidLine))
             self.curve3.setPos(self.dataIndex, 0)
         if self.checkBox_3.isChecked() == False and self.checkBox_3.checkState() == 0:
             self.curve3.clear()
         if self.checkBox_4.isChecked():
-            self.curve4.setData(self.data_fi4, pen=(135,206,250))
+            self.curve4.setData(self.data_fi4)
             self.curve4.setPos(self.dataIndex, 0)
         if self.checkBox_4.isChecked() == False and self.checkBox_4.checkState() == 0:
             self.curve4.clear()
         if self.checkBox_5.isChecked():
-            self.curve5.setData(self.data_fo1, pen=(255,215,0))
+            self.curve5.setData(self.data_fo1)
             self.curve5.setPos(self.dataIndex, 0)
         if self.checkBox_5.isChecked() == False and self.checkBox_5.checkState() == 0:
             self.curve5.clear()
         if self.checkBox_6.isChecked():
-            self.curve6.setData(self.data_fo2, pen=(154,50,205))
+            self.curve6.setData(self.data_fo2)
             self.curve6.setPos(self.dataIndex, 0)
         if self.checkBox_6.isChecked() == False and self.checkBox_6.checkState() == 0:
             self.curve6.clear()
         if self.checkBox_7.isChecked():
-            self.curve7.setData(self.data_fo3, pen=(176,48,96))
+            self.curve7.setData(self.data_fo3)
             self.curve7.setPos(self.dataIndex, 0)
         if self.checkBox_7.isChecked() == False and self.checkBox_7.checkState() == 0:
             self.curve7.clear()
         if self.checkBox_8.isChecked():
-            self.curve8.setData(self.data_fo4, pen=(139,105,20))
+            self.curve8.setData(self.data_fo4)
             self.curve8.setPos(self.dataIndex, 0)
         if self.checkBox_8.isChecked() == False and self.checkBox_8.checkState() == 0:
             self.curve8.clear()
