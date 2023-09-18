@@ -239,17 +239,17 @@ class DisplayDataWindow(QMainWindow):
             
         # 更新波形数据
         if self.checkBox.isChecked():
-            self.curve.setData(self.data_mc, pen="r")
+            self.curve.setData(self.data_mc)
             self.curve.setPos(self.dataIndex, 0)
         if self.checkBox.isChecked() == False and self.checkBox.checkState() == 0:
             self.curve.clear()
         if self.checkBox_1.isChecked():
-            self.curve1.setData(self.data_fi1, pen="g")
+            self.curve1.setData(self.data_fi1)
             self.curve1.setPos(self.dataIndex, 0)
         if self.checkBox_1.isChecked() == False and self.checkBox_1.checkState() == 0:
             self.curve1.clear()
         if self.checkBox_2.isChecked():
-            self.curve2.setData(self.data_fi2, pen="b")
+            self.curve2.setData(self.data_fi2)
             self.curve2.setPos(self.dataIndex, 0)
         if self.checkBox_2.isChecked() == False and self.checkBox_2.checkState() == 0:
             self.curve2.clear()
@@ -334,17 +334,17 @@ class DisplayDataWindow(QMainWindow):
       
         # 更新波形数据
         if self.checkBox.isChecked():
-            self.curve.setData(self.data_mc, pen="r")
+            self.curve.setData(self.data_mc)
             self.curve.setPos(self.dataIndex, 0)
         if self.checkBox.isChecked() == False and self.checkBox.checkState() == 0:
             self.curve.clear()
         if self.checkBox_1.isChecked():
-            self.curve1.setData(self.data_fi1, pen="g")
+            self.curve1.setData(self.data_fi1)
             self.curve1.setPos(self.dataIndex, 0)
         if self.checkBox_1.isChecked() == False and self.checkBox_1.checkState() == 0:
             self.curve1.clear()
         if self.checkBox_2.isChecked():
-            self.curve2.setData(self.data_fi2, pen="b")
+            self.curve2.setData(self.data_fi2)
             self.curve2.setPos(self.dataIndex, 0)
         if self.checkBox_2.isChecked() == False and self.checkBox_2.checkState() == 0:
             self.curve2.clear()
