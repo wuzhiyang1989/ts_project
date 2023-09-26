@@ -6,6 +6,9 @@ from time import sleep
 class UartSendThread(Thread):
     def __init__(self):
         self.sendcount = 0
+        self.fingerNum = 0x00
+        self.packPos = 0
+        self.packBuf = [0] * 16
         Thread.__init__(self)
 
     def getCheckSum(self, buf, len):
@@ -13,6 +16,55 @@ class UartSendThread(Thread):
         for i in range(len):
             sum += buf[i]
         return sum & 0xFF
+    
+    def sendSplitData(self, data, len):
+        dataPack = 0
+        dataLess = 0
+        dataPack = int(len / 3)
+        dataLess = len % 3
+        if (not data) or (len == 0):
+            print("Data is NULL  ")
+        if dataPack == 2:
+            self.packBuf = [0] * 12
+        if dataPack == 3:
+            self.packBuf = [0] * 16
+
+        for packIndex in range(dataPack):
+            self.packBuf[packIndex * 4] = self.fingerNum
+            self.packBuf[(packIndex * 4) + 1] = data[self.packPos]
+            self.packPos += 1
+            self.packBuf[(packIndex * 4) + 2] = data[self.packPos]
+            self.packPos += 1
+            self.packBuf[(packIndex * 4) + 3] = data[self.packPos]
+            self.packPos += 1
+
+        if dataLess > 0:
+            self.packBuf[dataPack * 4] = self.fingerNum
+            if dataLess == 1:
+                self.packBuf[(dataPack * 4) + 1] = data[self.packPos]
+                self.packPos += 1
+                self.packBuf[(dataPack * 4) + 2] = 0xFF
+                self.packPos += 1
+                self.packBuf[(dataPack * 4) + 3] = 0xFF
+                self.packPos += 1
+            if dataLess == 2:
+                self.packBuf[(dataPack * 4) + 1] = data[self.packPos]
+                self.packPos += 1
+                self.packBuf[(dataPack * 4) + 2] = data[self.packPos]
+                self.packPos += 1
+                self.packBuf[(dataPack * 4) + 3] = 0xFF
+                self.packPos += 1
+            UartReceiveThread.uart.write(self.packBuf)   
+
+        else:
+            UartReceiveThread.uart.write(self.packBuf)
+            
+        if dataPack == 2:
+            self.packBuf = [0] * 12
+            self.packPos = 0
+        if dataPack == 3:
+            self.packBuf = [0] * 16 
+            self.packPos = 0
 
     def run(self):
         while GUI.quitApplication == 0:
@@ -46,7 +98,9 @@ class UartSendThread(Thread):
                 data[4] = (self.sendcount & 0xFF00) >> 8
                 data[5] = self.sendcount & 0x00FF
                 data[len - 1] = self.getCheckSum(data, len - 1)
-                UartReceiveThread.uart.write(data)
+
+                self.sendSplitData(data, len)
+                # UartReceiveThread.uart.write(data)
                 strbuf = " << SendThread >> " + cmd
                 Utility.formatPrinting(strbuf)
                 self.sendcount += 1
