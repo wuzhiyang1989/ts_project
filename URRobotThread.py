@@ -1,6 +1,6 @@
 import urx
-import GUI, Utility
-import UartProtocolParseThread
+import GUI, Utility, UartReceiveThread
+import UartProtocolParseThread, collisionParseThread
 import TransformCoordinateThread
 import numpy as np
 
@@ -10,17 +10,33 @@ from threading import Thread
 stateMachine = ""
 task_num = 0
 task_sub_step = 0
-
+task_num_break = 0
 
 class URRobotThread(Thread):
     def __init__(self):
         print("URRobotThread.__init__")
         Thread.__init__(self)
         self.rob = urx.Robot("192.168.1.100")
+        self.sendcount = 0
+        self.coll = collisionParseThread.CollisionParseThread()
+
+    def send_collisionMessage(self):
+        data = [0x55, 0xAA, 0x06, 0xE4, 0x00, 0x00, 0x00, 0xE9]
+        len = 8
+        data[4] = (self.sendcount & 0xFF00) >> 8
+        data[5] = self.sendcount & 0x00FF
+        data[len - 1] = self.coll.getCheckSum(data, len - 1)
+
+        UartReceiveThread.ser.write(data)
+        strbuf = " << Send >> reply_CollisionMessage" 
+        Utility.formatPrinting(strbuf)
+        self.sendcount += 1
+        if self.sendcount == 0x10000:
+            self.sendcount = 0
                 
     def run(self):
         print("URRobotThread.run")
-        global stateMachine, task_num, task_sub_step
+        global stateMachine, task_num, task_sub_step, task_num_collision, task_sub_collision
 
         task_list = [
             ["wait_start_btn", "move_z", "move_y", "move_x", "send_message", "wait_message","move_z", "send_message",
@@ -94,12 +110,14 @@ class URRobotThread(Thread):
         ymax = -0.260
         zmin = 0.100
         zmax = 0.560
-        task_num_break = 0
 
-        a = 0.05
+        task_num_collision = 0
+        task_sub_collision = 0
+        
+        a = 0.8
         v0 = 0.02
         v1 = 0.05
-        v2 = 0.2
+        v2 = 0.15
         direction = 0
         zMoveDirection = 0
 
@@ -141,29 +159,53 @@ class URRobotThread(Thread):
                 this_message = UartProtocolParseThread.receiveMessageQueue.get()
             UartProtocolParseThread.receiveMessageQueue_lock.release()
 
+            collision_message = ""
+            collisionParseThread.collisionMessageQueue_lock.acquire()
+            if not collisionParseThread.collisionMessageQueue.empty():
+                collision_message = collisionParseThread.collisionMessageQueue.get()
+            collisionParseThread.collisionMessageQueue_lock.release()
+
+            if collision_message == "downSend_CollisionStop":
+                Utility.formatPrinting("wait_message << downSend_CollisionStop")
+                self.rob.stopl(acc=a)
+                sleep(0.01)
+                task_num_collision = task_num
+                task_sub_collision = task_sub_step
+                self.send_collisionMessage()  
+                
+            elif collision_message == "downSend_NormalMove":
+                Utility.formatPrinting("wait_message << downSend_NormalMove")
+                self.send_collisionMessage()
+                if task_num_collision == 0 and task_sub_collision == 0:
+                    pass
+                else:
+                    status = task_list[task_num_collision][task_sub_collision]
+                    task_num = task_num_collision
+                    task_sub_step = task_sub_collision
+                             
             if this_message == "downSend_FallDown":
                 if task_num == 1 or task_num == 2:
                     self.rob.stopl(acc=a)
                     if UartProtocolParseThread.someThing == 1:
                         GUI.displayPictureName = "Dropped"
                     task_num_break = task_num
-                    task_num = 3             # 如果滑落，执行任务3
+                    task_num = 3             # 如果滑落，执行任务3 (回原点)
                     task_sub_step = 0
                     status = task_list[task_num][task_sub_step]
                     Utility.formatPrinting("wait_message << downSend_FallDown_0")
-
+          
             if status == "move_z":
                 current_point = self.rob.getl()
                 target_point = [current_point[0],current_point[1],current_point[2],current_point[3],current_point[4],current_point[5]]
                 target_point[2] = position_list[task_num][task_sub_step][2]  # z change var
-                
+              
                 if target_point[2] > current_point[2]:  # lift
-                    v = 0.01 # v0                       # slow lift
+                    v = v0                        # slow lift
                     zMoveDirection = 1
-                    a = 0.1
+                    # a = 0.1
                     source_point = current_point
                 else:
-                    a = 0.05
+                    # a = 0.05
                     v = v1                              # fast down
                     zMoveDirection = -1
 
@@ -171,9 +213,11 @@ class URRobotThread(Thread):
                     self.rob.movel(target_point, acc=a, vel=v, wait=False)
                     status = "wait_move_z"
                 else:
-                    Utility.formatPrinting("Z coordinate overstep the boundary!")
+                    Utility.formatPrinting(str(target_point[2]) + " Z coordinate overstep the boundary!")
                     self.rob.stopl(acc = a)
-                    status = "task_end"
+                    task_num = 3             # 如果坐标越界，执行任务3 (回原点)
+                    task_sub_step = 0
+                    status = task_list[task_num][task_sub_step]
                 
             elif status == "wait_move_z":
                 current_point = self.rob.getl()
@@ -184,8 +228,7 @@ class URRobotThread(Thread):
                 if abs(current_point[2] - target_point[2]) < 0.001:
                     task_sub_step += 1
                     status = task_list[task_num][task_sub_step]
-                    a = 0.05
-                             
+              
             elif status == "change_pose":
                 current_point = self.rob.getl()
                 target_point = current_point
@@ -222,9 +265,11 @@ class URRobotThread(Thread):
                     self.rob.movel(target_point, acc=a, vel=v2, wait=False)
                     status = "wait_move_x"
                 else:
-                    Utility.formatPrinting("X coordinate overstep the boundary!")
+                    Utility.formatPrinting(str(target_point[0]) + " X coordinate overstep the boundary!")
                     self.rob.stopl(acc = a)
-                    status = "task_end"
+                    task_num = 3             # 如果坐标越界，执行任务3 (回原点)
+                    task_sub_step = 0
+                    status = task_list[task_num][task_sub_step]
                 
             elif status == "wait_move_x":
                 current_point = self.rob.getl()
@@ -234,17 +279,13 @@ class URRobotThread(Thread):
                     status = task_list[task_num][task_sub_step]  
                 # 判断没有抓取任务，保持人手互动任务    
                 if task_num == 2 and flag_pointcloud == False and task_sub_step == 5:
-                    # task_sub_step = 2
+                    # task_sub_step = 2  # 主控需要回原点，做清零初始化
                     status = task_list[task_num][task_sub_step]   
         
             elif status == "move_y":
                 current_point = self.rob.getl()
                 target_point = current_point
                 target_point[1] = position_list[task_num][task_sub_step][1]  
-                # if task_num_break == 1:
-                #     target_point[1] = y1
-                # if task_num_break == 2:
-                #     target_point[1] = y2
 
                 if task_num == 1 and task_sub_step == 1:
                     target_point[1] = pointcloud2[1]
@@ -253,9 +294,11 @@ class URRobotThread(Thread):
                     self.rob.movel(target_point, acc=a, vel=v2, wait=False)
                     status = "wait_move_y"
                 else:
-                    Utility.formatPrinting("Y coordinate overstep the boundary!")
+                    Utility.formatPrinting(str(target_point[1]) + " Y coordinate overstep the boundary!")
                     self.rob.stopl(acc = a)
-                    status = "task_end"
+                    task_num = 3             # 如果坐标越界，执行任务3 (回原点)
+                    task_sub_step = 0
+                    status = task_list[task_num][task_sub_step]
 
             elif status == "wait_move_y":
                 current_point = self.rob.getl()

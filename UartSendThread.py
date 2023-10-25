@@ -75,6 +75,7 @@ class UartSendThread(Thread):
                 if not GUI.sendMessageQueue.empty():
                     cmd = GUI.sendMessageQueue.get()
                 GUI.send_lock.release()
+                
                 len = 10
                 if cmd == "StartPrepare":
                     data = [0x55, 0xAA, 0x04, 0xE2, 0x00, 0x00, 0x02, 0x00, 0x01, 0xE8]
@@ -95,12 +96,21 @@ class UartSendThread(Thread):
                     data = [0x55, 0xAA, 0x04, 0xE2, 0x00, 0x00, 0x02, 0x00, 0xF2, 0xD9]
                 elif cmd == "MutualCapacitanceClean": # 55 AA 04 E2 00 00 02 00 FA E1
                     data = [0x55, 0xAA, 0x04, 0xE2, 0x00, 0x00, 0x02, 0x00, 0xFA, 0xE1]
+                elif cmd == "CapacitiveReset":
+                    data = [0x55, 0xAA, 0x06, 0xE5, 0x00, 0x00, 0x01, 0x02, 0xED]
+                    len = 9
+              
                 data[4] = (self.sendcount & 0xFF00) >> 8
                 data[5] = self.sendcount & 0x00FF
                 data[len - 1] = self.getCheckSum(data, len - 1)
-
-                self.sendSplitData(data, len)
-                # UartReceiveThread.uart.write(data)
+                
+                if len == 9:
+                    UartReceiveThread.ser.write(data)
+                    strbuf = " << Send >> " + str(data)
+                    Utility.formatPrinting(strbuf)
+                else:
+                    self.sendSplitData(data, len)
+                    # UartReceiveThread.uart.write(data)
                 strbuf = " << SendThread >> " + cmd
                 Utility.formatPrinting(strbuf)
                 self.sendcount += 1

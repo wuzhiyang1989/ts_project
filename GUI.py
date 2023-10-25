@@ -291,6 +291,12 @@ class MainUi(QtWidgets.QMainWindow):
         send_lock.release()
         print('backSpaceKeyCallback')
 
+    def capacitiveResetCallback(self):
+        send_lock.acquire()
+        sendMessageQueue.put("CapacitiveReset")
+        send_lock.release()
+        print('capacitiveResetCallback')
+        
     def resize(self, w, h, w_box, h_box, pil_image):
         f1 = 1.0 * w_box / w  # 1.0 forces float division in Python2
         f2 = 1.0 * h_box / h
@@ -337,6 +343,8 @@ class MainUi(QtWidgets.QMainWindow):
             self.spaceKeyCallback()
         if event.key() == Qt.Key_Backspace:     # 退格键清除电容值
             self.backSpaceKeyCallback()
+        if event.key() == Qt.Key_F1:            # 机械臂防撞，电容复位
+            self.capacitiveResetCallback()
 
     def toggle_window(self, checked):
         if self.display_win.isVisible():
