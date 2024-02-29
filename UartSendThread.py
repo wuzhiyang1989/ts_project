@@ -1,4 +1,4 @@
-import Utility, GUI
+import Utility, GUI, cameraDetection
 import UartReceiveThread
 from threading import Thread
 from time import sleep
@@ -6,7 +6,7 @@ from time import sleep
 class UartSendThread(Thread):
     def __init__(self):
         self.sendcount = 0
-        self.fingerNum = 0x00
+        self.fingerNum = 0x02
         self.packPos = 0
         self.packBuf = [0] * 16
         Thread.__init__(self)
@@ -26,7 +26,7 @@ class UartSendThread(Thread):
             print("Data is NULL  ")
         if dataPack == 2:
             self.packBuf = [0] * 12
-        if dataPack == 3:
+        if dataPack == 3 or dataPack == 4:
             self.packBuf = [0] * 16
 
         for packIndex in range(dataPack):
@@ -55,14 +55,14 @@ class UartSendThread(Thread):
                 self.packBuf[(dataPack * 4) + 3] = 0xFF
                 self.packPos += 1
             UartReceiveThread.uart.write(self.packBuf)   
-
+            
         else:
             UartReceiveThread.uart.write(self.packBuf)
             
         if dataPack == 2:
             self.packBuf = [0] * 12
             self.packPos = 0
-        if dataPack == 3:
+        if dataPack == 3 or dataPack == 4:
             self.packBuf = [0] * 16 
             self.packPos = 0
 
@@ -75,14 +75,31 @@ class UartSendThread(Thread):
                 if not GUI.sendMessageQueue.empty():
                     cmd = GUI.sendMessageQueue.get()
                 GUI.send_lock.release()
-                
                 len = 10
                 if cmd == "StartPrepare":
                     data = [0x55, 0xAA, 0x04, 0xE2, 0x00, 0x00, 0x02, 0x00, 0x01, 0xE8]
+
+                    if cameraDetection.obj.label == "stand_bottle":
+                        data[7] = 0x01
+                    elif cameraDetection.obj.label == "stand_sponge":
+                        data[7] = 0x02
+                    elif cameraDetection.obj.label == "stand_glass":
+                        data[7] = 0x03
+                    elif cameraDetection.obj.label == "wood":
+                        data[7] = 0x04
+                    elif cameraDetection.obj.label == "stand_paper":
+                        data[7] = 0x05
+                    elif cameraDetection.obj.label == "mouse_box":
+                        data[7] = 0x06
+                    elif cameraDetection.obj.label == "acrylic_plate":
+                        data[7] = 0x07
+        
                 elif cmd == "StartGrab":
                     data = [0x55, 0xAA, 0x04, 0xE2, 0x00, 0x00, 0x02, 0x00, 0x02, 0xE9]
                 elif cmd == "MoveComplete":
                     data = [0x55, 0xAA, 0x04, 0xE3, 0x00, 0x00, 0x02, 0x00, 0x0F, 0xF7]
+                elif cmd == "upReply_GrabComplete":
+                    data = [0x55, 0xAA, 0x04, 0xE3, 0x00, 0x00, 0x02, 0x00, 0x02, 0xE8]
                 elif cmd == "LiftComplete":
                     data = [0x55, 0xAA, 0x04, 0xE2, 0x00, 0x00, 0x02, 0x00, 0xF3, 0xDA]
                 elif cmd == "StartDecline":
@@ -116,7 +133,7 @@ class UartSendThread(Thread):
                 self.sendcount += 1
                 if self.sendcount == 0x10000:
                     self.sendcount = 0
-            sleep(0.001)
+            sleep(0.01)
 
         print("UartSendThread quit")
        

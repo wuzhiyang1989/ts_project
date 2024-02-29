@@ -17,7 +17,6 @@ from yolov5.utils.general import (
 from yolov5.utils.torch_utils import select_device
 from yolov5.utils.evaluation_utils import rbox2txt
 
-
 class Object(object):
     def __init__(self):
         self.conf = 0.0
@@ -31,7 +30,7 @@ obj = Object()
 
 class CameraDetection:
     def __init__(self):
-        self.weights = "/home/ts/wzy/ts_ur/yolov5/weights/best.pt"
+        self.weights = "./yolov5/weights/best.pt"
         self.source = "./yolov5/det_images"                   #测试数据，可以是图片/视频路径，也可以是'0'(电脑自带摄像头),也可以是rtsp等视频流
         self.output = "./yolov5/inference/detection/"         #网络预测之后的图片/视频的保存路径
         self.img_size = 512             #网络输入图片大小
@@ -139,7 +138,7 @@ class CameraDetection:
                         obj.row = int(rbox[1])
                         obj.col = int(rbox[0])
                         obj.cls = int(cls)
-
+                       
                         Utility.formatPrinting("conf :" + str(obj.conf) + "\t label :" + str(obj.label))
 
             # Print time (inference + NMS)

@@ -203,86 +203,88 @@ class DisplayDataWindow(QMainWindow):
         # self.receiveData()
 
     def receiveData(self):      
-        if self.dataIndex < self.dataMaxLength:
-            # 接收到的数据长度小于最大数据缓存长度，直接按索引赋值，索引自增1
-            self.data_mc[self.dataIndex] = float(displayDataParseThread.mutualCapacitanceQueue.get())
-            self.data_fo1[self.dataIndex] = float(displayDataParseThread.threeDimensionalForcesOutside1.get())
-            self.data_fo2[self.dataIndex] = float(displayDataParseThread.threeDimensionalForcesOutside2.get())
-            self.data_fo3[self.dataIndex] = float(displayDataParseThread.threeDimensionalForcesOutside3.get())
-            self.data_fo4[self.dataIndex] = float(displayDataParseThread.threeDimensionalForcesOutside4.get())
-            self.data_fi1[self.dataIndex] = float(displayDataParseThread.threeDimensionalForcesInside1.get())
-            self.data_fi2[self.dataIndex] = float(displayDataParseThread.threeDimensionalForcesInside2.get())
-            self.data_fi3[self.dataIndex] = float(displayDataParseThread.threeDimensionalForcesInside3.get())
-            self.data_fi4[self.dataIndex] = float(displayDataParseThread.threeDimensionalForcesInside4.get())
-            self.dataIndex = self.dataIndex + 1
-        else:
-            # 寄收到的数据长度大于或等于最大数据缓存长度，丢弃最前一个数据新数据添加到数据列尾
-            self.data_mc[:-1] = self.data_mc[1:]
-            self.data_fo1[:-1] = self.data_fo1[1:]
-            self.data_fo2[:-1] = self.data_fo2[1:]
-            self.data_fo3[:-1] = self.data_fo3[1:]
-            self.data_fo4[:-1] = self.data_fo4[1:]
-            self.data_fi1[:-1] = self.data_fi1[1:]
-            self.data_fi2[:-1] = self.data_fi2[1:]
-            self.data_fi3[:-1] = self.data_fi3[1:]
-            self.data_fi4[:-1] = self.data_fi4[1:]
+        try:
+            if self.dataIndex < self.dataMaxLength:
+                # 接收到的数据长度小于最大数据缓存长度，直接按索引赋值，索引自增1
+                self.data_mc[self.dataIndex] = float(displayDataParseThread.mutualCapacitanceQueue.get(block=False, timeout=3))
+                self.data_fo1[self.dataIndex] = float(displayDataParseThread.threeDimensionalForcesOutside1.get(block=False, timeout=3))
+                self.data_fo2[self.dataIndex] = float(displayDataParseThread.threeDimensionalForcesOutside2.get(block=False, timeout=3))
+                self.data_fo3[self.dataIndex] = float(displayDataParseThread.threeDimensionalForcesOutside3.get(block=False, timeout=3))
+                self.data_fo4[self.dataIndex] = float(displayDataParseThread.threeDimensionalForcesOutside4.get(block=False, timeout=3))
+                self.data_fi1[self.dataIndex] = float(displayDataParseThread.threeDimensionalForcesInside1.get(block=False, timeout=3))
+                self.data_fi2[self.dataIndex] = float(displayDataParseThread.threeDimensionalForcesInside2.get(block=False, timeout=3))
+                self.data_fi3[self.dataIndex] = float(displayDataParseThread.threeDimensionalForcesInside3.get(block=False, timeout=3))
+                self.data_fi4[self.dataIndex] = float(displayDataParseThread.threeDimensionalForcesInside4.get(block=False, timeout=3))
+                self.dataIndex = self.dataIndex + 1
+            else:
+                # 寄收到的数据长度大于或等于最大数据缓存长度，丢弃最前一个数据新数据添加到数据列尾
+                self.data_mc[:-1] = self.data_mc[1:]
+                self.data_fo1[:-1] = self.data_fo1[1:]
+                self.data_fo2[:-1] = self.data_fo2[1:]
+                self.data_fo3[:-1] = self.data_fo3[1:]
+                self.data_fo4[:-1] = self.data_fo4[1:]
+                self.data_fi1[:-1] = self.data_fi1[1:]
+                self.data_fi2[:-1] = self.data_fi2[1:]
+                self.data_fi3[:-1] = self.data_fi3[1:]
+                self.data_fi4[:-1] = self.data_fi4[1:]
 
-            self.data_mc[self.dataIndex - 1] = float(displayDataParseThread.mutualCapacitanceQueue.get())
-            self.data_fo1[self.dataIndex - 1] = float(displayDataParseThread.threeDimensionalForcesOutside1.get())
-            self.data_fo2[self.dataIndex - 1] = float(displayDataParseThread.threeDimensionalForcesOutside2.get())
-            self.data_fo3[self.dataIndex - 1] = float(displayDataParseThread.threeDimensionalForcesOutside3.get())
-            self.data_fo4[self.dataIndex - 1] = float(displayDataParseThread.threeDimensionalForcesOutside4.get())
-            self.data_fi1[self.dataIndex - 1] = float(displayDataParseThread.threeDimensionalForcesInside1.get())
-            self.data_fi2[self.dataIndex - 1] = float(displayDataParseThread.threeDimensionalForcesInside2.get())
-            self.data_fi3[self.dataIndex - 1] = float(displayDataParseThread.threeDimensionalForcesInside3.get())
-            self.data_fi4[self.dataIndex - 1] = float(displayDataParseThread.threeDimensionalForcesInside4.get())
-            
-        # 更新波形数据
-        if self.checkBox.isChecked():
-            self.curve.setData(self.data_mc)
-            self.curve.setPos(self.dataIndex, 0)
-        if self.checkBox.isChecked() == False and self.checkBox.checkState() == 0:
-            self.curve.clear()
-        if self.checkBox_1.isChecked():
-            self.curve1.setData(self.data_fi1)
-            self.curve1.setPos(self.dataIndex, 0)
-        if self.checkBox_1.isChecked() == False and self.checkBox_1.checkState() == 0:
-            self.curve1.clear()
-        if self.checkBox_2.isChecked():
-            self.curve2.setData(self.data_fi2)
-            self.curve2.setPos(self.dataIndex, 0)
-        if self.checkBox_2.isChecked() == False and self.checkBox_2.checkState() == 0:
-            self.curve2.clear()
-        if self.checkBox_3.isChecked():
-            self.curve3.setData(self.data_fi3, pen=pg.mkPen(color=(186, 85, 211), width=3, style=QtCore.Qt.SolidLine))
-            self.curve3.setPos(self.dataIndex, 0)
-        if self.checkBox_3.isChecked() == False and self.checkBox_3.checkState() == 0:
-            self.curve3.clear()
-        if self.checkBox_4.isChecked():
-            self.curve4.setData(self.data_fi4)
-            self.curve4.setPos(self.dataIndex, 0)
-        if self.checkBox_4.isChecked() == False and self.checkBox_4.checkState() == 0:
-            self.curve4.clear()
-        if self.checkBox_5.isChecked():
-            self.curve5.setData(self.data_fo1)
-            self.curve5.setPos(self.dataIndex, 0)
-        if self.checkBox_5.isChecked() == False and self.checkBox_5.checkState() == 0:
-            self.curve5.clear()
-        if self.checkBox_6.isChecked():
-            self.curve6.setData(self.data_fo2)
-            self.curve6.setPos(self.dataIndex, 0)
-        if self.checkBox_6.isChecked() == False and self.checkBox_6.checkState() == 0:
-            self.curve6.clear()
-        if self.checkBox_7.isChecked():
-            self.curve7.setData(self.data_fo3)
-            self.curve7.setPos(self.dataIndex, 0)
-        if self.checkBox_7.isChecked() == False and self.checkBox_7.checkState() == 0:
-            self.curve7.clear()
-        if self.checkBox_8.isChecked():
-            self.curve8.setData(self.data_fo4)
-            self.curve8.setPos(self.dataIndex, 0)
-        if self.checkBox_8.isChecked() == False and self.checkBox_8.checkState() == 0:
-            self.curve8.clear()
+                self.data_mc[self.dataIndex - 1] = float(displayDataParseThread.mutualCapacitanceQueue.get(block=False, timeout=3))
+                self.data_fo1[self.dataIndex - 1] = float(displayDataParseThread.threeDimensionalForcesOutside1.get(block=False, timeout=3))
+                self.data_fo2[self.dataIndex - 1] = float(displayDataParseThread.threeDimensionalForcesOutside2.get(block=False, timeout=3))
+                self.data_fo3[self.dataIndex - 1] = float(displayDataParseThread.threeDimensionalForcesOutside3.get(block=False, timeout=3))
+                self.data_fo4[self.dataIndex - 1] = float(displayDataParseThread.threeDimensionalForcesOutside4.get(block=False, timeout=3))
+                self.data_fi1[self.dataIndex - 1] = float(displayDataParseThread.threeDimensionalForcesInside1.get(block=False, timeout=3))
+                self.data_fi2[self.dataIndex - 1] = float(displayDataParseThread.threeDimensionalForcesInside2.get(block=False, timeout=3))
+                self.data_fi3[self.dataIndex - 1] = float(displayDataParseThread.threeDimensionalForcesInside3.get(block=False, timeout=3))
+                self.data_fi4[self.dataIndex - 1] = float(displayDataParseThread.threeDimensionalForcesInside4.get(block=False, timeout=3))
+        finally:   
+            print("消息队列个数 ： ", displayDataParseThread.mutualCapacitanceQueue.qsize())
+            # 更新波形数据
+            if self.checkBox.isChecked():
+                self.curve.setData(self.data_mc)
+                self.curve.setPos(self.dataIndex, 0)
+            if self.checkBox.isChecked() == False and self.checkBox.checkState() == 0:
+                self.curve.clear()
+            if self.checkBox_1.isChecked():
+                self.curve1.setData(self.data_fi1)
+                self.curve1.setPos(self.dataIndex, 0)
+            if self.checkBox_1.isChecked() == False and self.checkBox_1.checkState() == 0:
+                self.curve1.clear()
+            if self.checkBox_2.isChecked():
+                self.curve2.setData(self.data_fi2)
+                self.curve2.setPos(self.dataIndex, 0)
+            if self.checkBox_2.isChecked() == False and self.checkBox_2.checkState() == 0:
+                self.curve2.clear()
+            if self.checkBox_3.isChecked():
+                self.curve3.setData(self.data_fi3, pen=pg.mkPen(color=(186, 85, 211), width=3, style=QtCore.Qt.SolidLine))
+                self.curve3.setPos(self.dataIndex, 0)
+            if self.checkBox_3.isChecked() == False and self.checkBox_3.checkState() == 0:
+                self.curve3.clear()
+            if self.checkBox_4.isChecked():
+                self.curve4.setData(self.data_fi4)
+                self.curve4.setPos(self.dataIndex, 0)
+            if self.checkBox_4.isChecked() == False and self.checkBox_4.checkState() == 0:
+                self.curve4.clear()
+            if self.checkBox_5.isChecked():
+                self.curve5.setData(self.data_fo1)
+                self.curve5.setPos(self.dataIndex, 0)
+            if self.checkBox_5.isChecked() == False and self.checkBox_5.checkState() == 0:
+                self.curve5.clear()
+            if self.checkBox_6.isChecked():
+                self.curve6.setData(self.data_fo2)
+                self.curve6.setPos(self.dataIndex, 0)
+            if self.checkBox_6.isChecked() == False and self.checkBox_6.checkState() == 0:
+                self.curve6.clear()
+            if self.checkBox_7.isChecked():
+                self.curve7.setData(self.data_fo3)
+                self.curve7.setPos(self.dataIndex, 0)
+            if self.checkBox_7.isChecked() == False and self.checkBox_7.checkState() == 0:
+                self.curve7.clear()
+            if self.checkBox_8.isChecked():
+                self.curve8.setData(self.data_fo4)
+                self.curve8.setPos(self.dataIndex, 0)
+            if self.checkBox_8.isChecked() == False and self.checkBox_8.checkState() == 0:
+                self.curve8.clear()
 
     def plotData(self):
         if self.dataIndex < self.dataMaxLength:

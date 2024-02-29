@@ -7,6 +7,7 @@ from time import sleep
 
 dataReceiveBuffer = Queue(maxsize=10000)
 displayDataReceiveBuffer = Queue(maxsize=10000)
+snnDataReceiveBuffer = Queue(maxsize=10000)
 ReceiveBuffer_lock = Lock()
 collisionDataBuffer = Queue(maxsize=10000)
 collisionDataBuffer_lock = Lock()
@@ -21,11 +22,12 @@ for port in port_list:
 ser = serial.Serial(serialPort[0], 9600, timeout=0.5)
 uart = serial.Serial(serialPort[1], 256000, timeout=0.5)
 
+
 class UartReceiveThread(Thread):
     def __init__(self):
         Thread.__init__(self)
         self.packPos = 0
-        self.packBuf = [0]*30
+        self.packBuf = [0]*90
         self.pack_buf = []
 
     def getCheckSum(self, buf, len):
@@ -41,9 +43,9 @@ class UartReceiveThread(Thread):
             data_ = ser.read_all()
             m = len(data_)
 
-            strbuffer = " ****** ReceiveThread ******  " + str(data_.hex())
-            if m > 0:
-                Utility.formatPrinting(strbuffer)
+            #strbuffer = " ****** ReceiveThread ******  " + str(data_.hex())
+            #if m > 0:
+            #    Utility.formatPrinting(strbuffer)
 
             for i in range(m):
                 self.pack_buf.append(data_[i])
@@ -78,17 +80,22 @@ class UartReceiveThread(Thread):
                     elif data[i] == 0xAA and self.packPos == 1:
                         self.packBuf[self.packPos] = data[i]
                         self.packPos += 1
-                    elif data[i] == 0x01 and self.packPos == 2:
-                        self.packBuf[self.packPos] = data[i]
-                        self.packPos += 1
-                    elif data[i] == 0x03 and self.packPos == 2:
+                    elif (data[i] == 0x01 or data[i] == 0x03 or data[i] == 0x04) and self.packPos == 2:
                         self.packBuf[self.packPos] = data[i]
                         self.packPos += 1
                     elif data[i] == 0x09 and self.packPos == 3:
                         self.packBuf[self.packPos] = data[i]
                         self.packPos += 1
                         getLen = 24
-                    elif (data[i] == 0xE1 or data[i] == 0xE2 or data[i] == 0xE3 or data[i] == 0xE4) and self.packPos == 3:
+                    elif data[i] == 0x27 and self.packPos == 3:
+                        self.packBuf[self.packPos] = data[i]
+                        self.packPos += 1
+                        getLen = 84
+                    elif data[i] == 0xE4 and self.packPos == 3:
+                        self.packBuf[self.packPos] = data[i]
+                        self.packPos += 1
+                        getLen = 12
+                    elif (data[i] == 0xE1 or data[i] == 0xE2 or data[i] == 0xE3) and self.packPos == 3:
                         self.packBuf[self.packPos] = data[i]
                         self.packPos += 1
                         getLen = 8 if data[i] == 0xE1 else 10
@@ -99,17 +106,20 @@ class UartReceiveThread(Thread):
                             for i in range(getLen):
                                 if getLen == 24:
                                     if displayDataReceiveBuffer.qsize() < displayDataReceiveBuffer.maxsize:
-                                        displayDataReceiveBuffer.put(self.packBuf[i])             
+                                        displayDataReceiveBuffer.put(self.packBuf[i]) 
+                                elif getLen == 84:
+                                    if snnDataReceiveBuffer.qsize() < snnDataReceiveBuffer.maxsize:
+                                        snnDataReceiveBuffer.put(self.packBuf[i])            
                                 else:
                                     if dataReceiveBuffer.qsize() < dataReceiveBuffer.maxsize:
-                                        dataReceiveBuffer.put(self.packBuf[i]) 
-
+                                        dataReceiveBuffer.put(self.packBuf[i])  
                             self.packPos = 0 
-                            self.packBuf = [0] * 30
+                            self.packBuf = [0] * 90
+                            
                     else :
                         print("dataReceiveBuffer overflow !")
                 ReceiveBuffer_lock.release()
-
+            
             sleep(0.001)
 
         ser.close()

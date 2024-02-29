@@ -79,7 +79,7 @@ class CollisionParseThread(Thread):
                                         collisionMessageQueue.put(cm)
                                         collisionMessageQueue_lock.release()
                                 else:
-                                    print("checksum error")
+                                    print(checksum, self.packBuf[len - 1],"checksum error")
                         else:
                             self.packBuf = [0] * 20
                             self.packPos = 0

@@ -2,7 +2,7 @@ import GUI
 import UartReceiveThread
 import URRobotThread
 import UartProtocolParseThread, displayDataParseThread, collisionParseThread
-import UartSendThread
+import UartSendThread, snnDataWriteToExcel
 import TransformCoordinateThread
 import sys
 
@@ -23,6 +23,7 @@ if __name__ == "__main__":
     displayDataParseThread.DisplayDataParseThread()
     TransformCoordinateThread.TransformCoordThread()
     collisionParseThread.CollisionParseThread()
+    snnDataWriteToExcel.SnnDataWriteToExcel()
 
     app = GUI.main()
 

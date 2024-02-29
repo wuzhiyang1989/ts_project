@@ -69,7 +69,7 @@ class TransformCoordThread(Thread):
     def run(self):
         global pointcloud
         
-        kinect = Kinect2Bridge("/home/ts/wzy/ts_ur/data/")
+        kinect = Kinect2Bridge("./data/")
         
         fn = Freenect2()
         num_devices = fn.enumerateDevices()
@@ -201,7 +201,7 @@ class TransformCoordThread(Thread):
 
             # y坐标计算得出是一个正值，与机械臂运动方向相反，在这里做了取反操作，和减去夹爪的长度
             pointcloud[1] = -(pointcloud[1] - 0.185)
-            # pointcloud = np.concatenate(pointcloud, np.array([obj.cls, obj.angle]))
+            # pointcloud = np.concatenate(pointcloud, np.array([cameraDetection.obj.cls, cameraDetection.obj.angle]))
             pointCloud_lock.release()
             Utility.formatPrinting("PUT pointcloud : " + str(pointcloud) + "\t" )
             

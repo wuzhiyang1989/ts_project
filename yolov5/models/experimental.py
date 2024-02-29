@@ -144,7 +144,7 @@ def attempt_load(weights, map_location=None):
         model_inference， None
     '''
     model = Ensemble()
-    sys.path.insert(0, '/home/ts/wzy/ts_ur/yolov5/')
+    sys.path.insert(0, './yolov5/')
     
     for w in weights if isinstance(weights, list) else [weights]:
         attempt_download(w)

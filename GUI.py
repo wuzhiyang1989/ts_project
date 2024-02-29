@@ -15,8 +15,8 @@ from PyQt5.QtWidgets import (QPushButton, QApplication, QDesktopWidget)
 from PyQt5.QtGui import QIcon,QFont
 from PyQt5.QtCore import QCoreApplication, Qt, QTimer
 
-import UartReceiveThread, URRobotThread
-import dispalyDataWindow
+import UartReceiveThread, URRobotThread, displayDataParseThread
+import dispalyDataWindow, UartProtocolParseThread, collisionParseThread
 
 quitApplication = 0
 sendMessageQueue = Queue(maxsize=10)
@@ -148,6 +148,10 @@ class MainUi(QtWidgets.QMainWindow):
         self.bm4 = self.readImage(r'images-new/夹爪中物体在滑动.png')
         self.bm5 = self.readImage(r'images-new/夹爪抓取物体相对稳定.png')
         self.bm6 = self.readImage(r'images-new/夹爪中物品脱落.png')
+        self.bm7 = self.readImage(r'images-new/木头.jpg')
+        self.bm8 = self.readImage(r'images-new/海绵.jpg')
+        self.bm9 = self.readImage(r'images-new/玻璃杯.jpg')
+        self.bm10 = self.readImage(r'images-new/矿泉水瓶.jpg')
 
         self.gripper_label = QtWidgets.QLabel(self)
         self.gripper_label.setGeometry(QtCore.QRect(int((self.width-385)/2), 120, 385, 544))    # setGeometry(左右， 上下， 宽， 高)
@@ -245,19 +249,27 @@ class MainUi(QtWidgets.QMainWindow):
         qimage = QtGui.QPixmap(qimage).scaled(400, 400)      # 加载图片,并自定义图片展示尺寸
         return qimage
 
-    def runTimer(self):
+    def runTimer(self):        
         if displayPictureName == "Nothing": #(t.tm_sec % 6 == 0):
             self.gripper_label.setPixmap(self.bm1)
-        elif displayPictureName == "Something": #(t.tm_sec % 6 == 1):
-            self.gripper_label.setPixmap(self.bm2)
-        elif displayPictureName == "Grabbing": #(t.tm_sec % 6 == 2):
-            self.gripper_label.setPixmap(self.bm3)
-        elif displayPictureName == "Sliding": #(t.tm_sec % 6 == 3):
-            self.gripper_label.setPixmap(self.bm4)
-        elif displayPictureName == "Stable": #(t.tm_sec % 6 == 4):
-            self.gripper_label.setPixmap(self.bm5)
-        elif displayPictureName == "Dropped": #(t.tm_sec % 6 == 5):
-            self.gripper_label.setPixmap(self.bm6)
+        # elif displayPictureName == "Something": #(t.tm_sec % 6 == 1):
+        #     self.gripper_label.setPixmap(self.bm2)
+        # elif displayPictureName == "Grabbing": #(t.tm_sec % 6 == 2):
+        #     self.gripper_label.setPixmap(self.bm3)
+        # elif displayPictureName == "Sliding": #(t.tm_sec % 6 == 3):
+        #     self.gripper_label.setPixmap(self.bm4)
+        # elif displayPictureName == "Stable": #(t.tm_sec % 6 == 4):
+        #     self.gripper_label.setPixmap(self.bm5)
+        # elif displayPictureName == "Dropped": #(t.tm_sec % 6 == 5):
+        #     self.gripper_label.setPixmap(self.bm6)
+        elif displayPictureName == "Plastic": 
+            self.gripper_label.setPixmap(self.bm10)
+        elif displayPictureName == "Wood": 
+            self.gripper_label.setPixmap(self.bm7)
+        elif displayPictureName == "Sponge": 
+            self.gripper_label.setPixmap(self.bm8)
+        elif displayPictureName == "Glass": 
+            self.gripper_label.setPixmap(self.bm9)
         
     def startBtnCallback(self):
         global runState
@@ -311,6 +323,24 @@ class MainUi(QtWidgets.QMainWindow):
         self.stopBtnCallback()
         sleep(1)
 
+        UartReceiveThread.dataReceiveBuffer.queue.clear()
+        UartReceiveThread.displayDataReceiveBuffer.queue.clear()
+        UartReceiveThread.snnDataReceiveBuffer.queue.clear()
+        UartReceiveThread.collisionDataBuffer.queue.clear()
+        sendMessageQueue.queue.clear()
+
+        UartProtocolParseThread.receiveMessageQueue.queue.clear()
+        displayDataParseThread.mutualCapacitanceQueue.queue.clear()
+        displayDataParseThread.threeDimensionalForcesInside1.queue.clear()
+        displayDataParseThread.threeDimensionalForcesInside2.queue.clear()
+        displayDataParseThread.threeDimensionalForcesInside3.queue.clear()
+        displayDataParseThread.threeDimensionalForcesInside4.queue.clear()
+        displayDataParseThread.threeDimensionalForcesOutside1.queue.clear()
+        displayDataParseThread.threeDimensionalForcesOutside2.queue.clear()
+        displayDataParseThread.threeDimensionalForcesOutside3.queue.clear()
+        displayDataParseThread.threeDimensionalForcesOutside4.queue.clear()
+        collisionParseThread.collisionMessageQueue.queue.clear()
+         
         print('quitApp')
         quitApplication = 1
         sleep(1)

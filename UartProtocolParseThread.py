@@ -42,10 +42,10 @@ class UartProtocolParseThread(Thread):
                     elif data == 0xAA and self.packPos == 1:
                         self.packBuf[self.packPos] = data
                         self.packPos += 1
-                    elif data == 0x03 and self.packPos == 2:
+                    elif (data == 0x03 or data == 0x04) and self.packPos == 2:
                         self.packBuf[self.packPos] = data
                         self.packPos += 1
-                    elif (data == 0xE1 or data == 0xE2 or data == 0xE3 or data == 0xE4) and self.packPos == 3:
+                    elif (data == 0xE1 or data == 0xE2 or data == 0xE3) and self.packPos == 3:
                         self.packBuf[self.packPos] = data
                         self.packPos += 1
                         if data == 0xE1:
@@ -54,6 +54,12 @@ class UartProtocolParseThread(Thread):
                         else:
                             len = 10
                             readLen = 6
+                    elif data == 0xE4 and self.packPos == 3:
+                        self.packBuf[self.packPos] = data
+                        self.packPos += 1
+                        len = 12
+                        readLen = 8
+
             if readLen > 0:
                 n = UartReceiveThread.dataReceiveBuffer.qsize()
                 while n < readLen:
@@ -73,18 +79,28 @@ class UartProtocolParseThread(Thread):
                                 checksum = self.getCheckSum(self.packBuf, len - 1)
                                 
                                 if checksum == self.packBuf[len - 1]:
-                                    if self.packBuf[3] == 0xE2 and self.packBuf[6] == 0x02 and self.packBuf[7] == 0x00 and self.packBuf[8] == 0x01:
+                                    if self.packBuf[3] == 0xE2 and self.packBuf[6] == 0x02 and (self.packBuf[7] == 0x00 or self.packBuf[7] == 0x01 or self.packBuf[7] == 0x02 or self.packBuf[7] == 0x03 or self.packBuf[7] == 0x04) and self.packBuf[8] == 0x01:
                                         rm = "downReply_StartPrepare"
-                                    elif self.packBuf[3] == 0xE3 and self.packBuf[6] == 0x02 and self.packBuf[7] == 0x00 and self.packBuf[8] == 0xF4:
+                                    elif self.packBuf[3] == 0xE3 and self.packBuf[6] == 0x02 and self.packBuf[7] == 0x00 and self.packBuf[8] == 0xF5:
                                         rm = "downSend_PrepareGrabDemo"
                                     elif self.packBuf[3] == 0xE3 and self.packBuf[6] == 0x02 and self.packBuf[7] == 0x00 and self.packBuf[8] == 0x01:
                                         rm = "downSend_PrepareComplete"
                                     elif self.packBuf[3] == 0xE2 and self.packBuf[6] == 0x02 and self.packBuf[7] == 0x00 and self.packBuf[8] == 0x02:
                                         rm = "downReply_StartGrab"
-                                    elif self.packBuf[3] == 0xE4 and self.packBuf[6] == 0x02:
-                                        someThing = self.packBuf[7]
-                                        gripperDistance = self.packBuf[8]
+                                    elif self.packBuf[3] == 0xE4 and self.packBuf[6] == 0x04 and self.packBuf[7] == 0x02:
+                                        someThing = self.packBuf[9]
+                                        gripperDistance = self.packBuf[10]
                                         rm = "downSend_GripperState"
+                                    elif self.packBuf[3] == 0xE4 and self.packBuf[6] == 0x04 and self.packBuf[7] == 0x06:
+                                        if self.packBuf[8] == 0x00:
+                                            rm = "downSend_Wood"
+                                        elif self.packBuf[8] == 0x01:
+                                            rm = "downSend_Plastic"
+                                        elif self.packBuf[8] == 0x02:
+                                            rm = "downSend_Glass"
+                                        elif self.packBuf[8] == 0x03:
+                                            rm = "downSend_Sponge"
+
                                     elif self.packBuf[3] == 0xE3 and self.packBuf[6] == 0x02 and self.packBuf[7] == 0x00 and self.packBuf[8] == 0x02:
                                         rm = "downSend_GrabComplete"
                                     elif self.packBuf[3] == 0xE3 and self.packBuf[6] == 0x02 and self.packBuf[7] == 0x00 and self.packBuf[8] == 0x05:
@@ -97,6 +113,8 @@ class UartProtocolParseThread(Thread):
                                         rm = "downSend_FallDown"
                                     elif self.packBuf[3] == 0xE2 and self.packBuf[6] == 0x02 and self.packBuf[7] == 0x00 and self.packBuf[8] == 0x10:
                                         rm = "downSend_RequestDecline"
+                                    elif self.packBuf[3] == 0xE2 and self.packBuf[6] == 0x02 and self.packBuf[7] == 0x00 and self.packBuf[8] == 0xF3:
+                                        rm = "downReply_LiftComplete"
                                     elif self.packBuf[3] == 0xE1 and self.packBuf[6] == 0x00:
                                         rm = "downReply_StartDecline"
                                     elif self.packBuf[3] == 0xE2 and self.packBuf[6] == 0x02 and self.packBuf[7] == 0x00 and self.packBuf[8] == 0x03:
